@@ -1,28 +1,31 @@
 class MaxIntSet
   def initialize(max)
     @max = max
-    @store = Array.new(@max + 1, false)
+    @store = Array.new(max + 1)
   end
 
   def insert(num)
     validate!(num)
+
     @store[num] = true
   end
 
   def remove(num)
     validate!(num)
+
     @store[num] = false
   end
 
   def include?(num)
-    is_valid?(num)
-    @store[num]
+    validate!(num)
+
+    !!@store[num]
   end
 
   private
 
-def is_valid?(num)
-    num.between?(0, @store.length - 1)
+  def is_valid?(num)
+    num >= 0 && num <= @max
   end
 
   def validate!(num)
@@ -37,22 +40,25 @@ class IntSet
   end
 
   def insert(num)
-    self[num] << num
+    bucket = self[num]
+    bucket << num
   end
 
   def remove(num)
-    self[num].delete(num)
+    bucket = self[num]
+    bucket.delete(num)
   end
 
   def include?(num)
-    self[num].include?(num)
+    bucket = self[num]
+    bucket.include?(num)
   end
 
   private
 
   def [](num)
     # optional but useful; return the bucket corresponding to `num`
-    @store[num % 20]
+    @store[num % num_buckets]
   end
 
   def num_buckets
@@ -69,18 +75,21 @@ class ResizingIntSet
   end
 
   def insert(num)
-    resize! if count >= num_buckets
-    self[num] << num
+    resize! if @count == num_buckets
+    bucket = self[num]
+    bucket << num
     @count += 1
   end
 
   def remove(num)
-    self[num].delete(num)
+    bucket = self[num]
+    bucket.delete(num)
     @count -= 1
   end
 
   def include?(num)
-    self[num].include?(num)
+    bucket = self[num]
+    bucket.include?(num)
   end
 
   private
@@ -95,10 +104,9 @@ class ResizingIntSet
   end
 
   def resize!
-    new_store = Array.new(num_buckets * 2){ Array.new }
-    @store.each_with_index do |el, i|
-      new_store[i % (num_buckets * 2)] = el
-    end
-    @store = new_store
+    old_store = @store
+    @store = Array.new(@count * 2) { Array.new }
+    @count = 0
+    old_store.flatten.each {|num| self.insert(num)}
   end
 end
