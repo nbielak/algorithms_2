@@ -1,3 +1,5 @@
+require_relative 'p02_hashing'
+
 class HashSet
   attr_reader :count
 
@@ -7,25 +9,23 @@ class HashSet
   end
 
   def insert(key)
-    resize! if count == num_buckets
+    resize! if @count == num_buckets
     bucket = self[key]
-    unless bucket.include?(key)
-      bucket << key 
-      @count += 1
-    end
+    bucket << key
+    @count += 1
   end
 
   def include?(key)
-    self[key].include?(key)
+    bucket = self[key]
+    bucket.include?(key)
   end
 
   def remove(key)
     bucket = self[key]
-    if bucket.include?(key)
-      bucket.delete(key) 
-      @count -= 1
-    end
+    bucket.delete(key)
+    @count -= 1
   end
+
 
   private
 
@@ -39,14 +39,9 @@ class HashSet
   end
 
   def resize!
-    new_length = num_buckets * 2
-    old = @store
-    @store = Array.new(new_length) { [] }
+    old_store = @store
+    @store = Array.new(@count * 2) { Array.new }
     @count = 0
-    old.each do |bucket|
-      bucket.each do |el|
-        self.insert(el)
-      end
-    end
+    old_store.flatten.each {|num| self.insert(num)}
   end
 end
