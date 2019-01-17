@@ -93,10 +93,10 @@ class LinkedList
   end
 
   def each
-    node = first
-    until node.next.nil?
-      yield node
-      node = node.next
+    current_node = @head.next
+    until current_node == @tail
+      yield current_node
+      current_node = current_node.next
     end
   end
 

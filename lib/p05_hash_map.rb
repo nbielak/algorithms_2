@@ -15,12 +15,12 @@ class HashMap
   end
 
   def set(key, val)
-    resize! if num_buckets ==@count
-    bucket = bucket(key)
-    if bucket.include?(key)
-      bucket.update(key, val)
+    resize! if count == num_buckets
+    buck = bucket(key)
+    if buck.include?(key)
+      buck.update(key, val)
     else
-      bucket.append(key, val)
+      buck.append(key, val)
       @count += 1
     end
   end
@@ -36,7 +36,7 @@ class HashMap
 
   def each(&block)
     @store.each do |bucket|
-      bucket.each { |link| block.call(link.key, link.val)}
+      bucket.each {|node| block.call(node.key, node.val)}
     end
   end
 
@@ -60,9 +60,9 @@ class HashMap
   def resize!
     old_store = @store
     @store = Array.new(num_buckets * 2) {LinkedList.new}
-    old_store.each_with_index do |bucket|
-      bucket.each do |el|
-        self[el.key] = el.val
+    old_store.each do |list|
+      list.each do |item|
+        self[item.key] = item.val
       end
     end
   end
