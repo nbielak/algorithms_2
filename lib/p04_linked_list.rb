@@ -26,8 +26,11 @@ end
 class LinkedList
   include Enumerable
   def initialize
-    @head, @tail = Node.new, Node.new 
-    @head.next, @tail.prev = @tail, @head
+    @head = Node.new
+    @tail = Node.new
+
+    @head.next = @tail
+    @tail.prev = @head
   end
 
   def [](i)
@@ -48,53 +51,54 @@ class LinkedList
   end
 
   def get(key)
-    each {|node| return node.val if node.key == key}
+    node = @head
+    until node.next.nil?
+      return node.val if node.key == key
+      node = node.next
+    end
     nil
   end
 
   def include?(key)
-    self.each do |el|
-      return true if el.key == key
-    end
-    false
+    !!get(key)
   end
 
   def append(key, val)
-    new_node = Node.new(key, val)
-    @tail.prev.next = new_node
-    new_node.prev = @tail.prev
-    @tail.prev = new_node 
-    new_node.next = @tail
-    new_node
+    node = Node.new(key, val)
+    node.prev, @tail.prev.next = last, node
+    @tail.prev, node.next = node, @tail
   end
 
   def update(key, val)
-    each do |node|
+    node = @head
+    target = nil
+    until node.next.nil?
       if node.key == key
-        node.val = val
+        node.val = val 
         return node
       end
+      node = node.next
     end
+    nil
   end
 
   def remove(key)
     each do |node|
       if node.key == key
         node.remove
-        return node.val
+        return node
       end
     end
     nil
   end
 
   def each
-      current_node = @head.next
-      until current_node == @tail
-        yield current_node
-        current_node = current_node.next
-      end
+    node = first
+    until node.next.nil?
+      yield node
+      node = node.next
     end
-
+  end
 
   # uncomment when you have `each` working and `Enumerable` included
   def to_s
